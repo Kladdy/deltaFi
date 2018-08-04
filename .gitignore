@@ -333,3 +333,4 @@ ASALocalRun/
 *.sln
 *.vcxproj
 *.filters
+deltaFi/resource.h
