@@ -7,13 +7,18 @@ class WindowController
 {
 public:
 	void mouseClicked(sf::Vector2i mousePos, sf::Mouse::Button buttonPressed);
-	void updateWindow(sf::RenderWindow& window, int FPS);
+	void keyPressed(sf::Keyboard::Key key, bool control, bool alt, bool shift, bool system);
+	void updateWindow(sf::RenderWindow& window, sf::Vector2i mousePos, int FPS);
 	void initializeAssets(int state);
 
 	void newCircleShape(int state, sf::Vector2f position, int radius, int corners, sf::Color color, sf::Color outlineColor, int outlineThickness, int rotation);
+	sf::CircleShape newCircleShapeMenu(sf::Vector2f position, int radius, int corners, sf::Color color, sf::Color outlineColor, int outlineThickness);
 	void newSprite(int state, sf::Vector2f position, std::string texture, sf::Vector2f scale);
-	void newText(int state, sf::Vector2f position, std::string text, std::string font, int size, sf::Color color);
-	void menuAnimation();
+	void newText(int state, sf::Vector2f position, std::string text, std::string font, int size, sf::Color color, bool center);
+	sf::Text newTextMenu(sf::Vector2f position, std::string text, std::string font, int size, sf::Color color, bool center);
+	void newMenuButton(std::string text, sf::Color hoverColor);
+	void menuAnimation(sf::Vector2i mousePos);
+	void runIntro();
 
 	WindowController();
 	~WindowController();
