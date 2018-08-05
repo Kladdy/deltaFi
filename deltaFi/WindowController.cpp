@@ -54,6 +54,13 @@ namespace menuVariables
 	Int32 currentTime;
 	float yDisplacement;
 
+	//Menu layout sizes
+	int mainLogoDistance = 130;
+	int mainLogoAmplitude = 20;
+	int topRowDistance = 400;
+	int deltaTopBot = 200;
+	int distanceFromLeft = 400;
+
 	//CircleShapes
 	vector<CircleShape> circleShapes;
 
@@ -117,6 +124,7 @@ void WindowController::updateWindow(sf::RenderWindow& window, Vector2i mousePos,
 			if (menu_button.isVisable){
 				window.draw(menu_button.circleShape);
 				window.draw(menu_button.textLable);
+				window.draw(menu_button.icon);
 			}
 		}
 
@@ -142,18 +150,23 @@ void WindowController::initializeAssets(int state)
 
 	//Textures
 	loadedTextures["deltaFiLogo"] = IL.loadTextureFromMemory((void*)deltaFiLogo, deltaFiLogo_Size);
+	loadedTextures["particleLogo"] = IL.loadTextureFromMemory((void*)particleLogo, particleLogo_Size);
+	loadedTextures["particleLogo2"] = IL.loadTextureFromMemory((void*)particleLogo2, particleLogo2_Size);
+	loadedTextures["particleLogo3"] = IL.loadTextureFromMemory((void*)particleLogo3, particleLogo3_Size);
+
 
 	//FPS counter
-	newText(-1, Vector2f(1423, 720), "FPS: ", "opensans", 20, Color::White, false);
+	newText(-1, Vector2f(1427, 720), "FPS: ", "opensans", 20, Color::White, false);
+
 
 	switch (state)
 	{
 	case 0:
 		newSprite(state, Vector2f(750, 200), "deltaFiLogo", Vector2f(0.8f, 0.8f)); //Logo
-		newMenuButton("Particles", Color(211, 164, 232, 200));
-		newMenuButton("Planetary", Color(211, 164, 232, 200));
-		newMenuButton("Pendulum", Color(211, 164, 232, 200));
-		newMenuButton("Swing", Color(211, 164, 232, 200));
+		newMenuButton("Particles", Color(211, 164, 232, 200), "particleLogo", Vector2f(0.5f, 0.5f));
+		newMenuButton("Planetary", Color(211, 164, 232, 200), "particleLogo2", Vector2f(0.5f, 0.5f));
+		newMenuButton("Pendulum", Color(211, 164, 232, 200), "particleLogo3", Vector2f(0.5f, 0.5f));
+		newMenuButton("Swing", Color(211, 164, 232, 200), "", Vector2f(1.f, 1.f));
 		menuVariables::animateIntro = true;
 		menuVariables::animateIntroClock.restart();
 		break;
@@ -205,6 +218,18 @@ void WindowController::newSprite(int state, sf::Vector2f position, string textur
 	if (state == 0) menuVariables::loadedSprites.push_back(sprite);
 }
 
+sf::Sprite WindowController::newSpriteMenu(sf::Vector2f position, string texture, sf::Vector2f scale)
+{
+	sf::Sprite sprite;
+	sprite.setTexture(loadedTextures[texture]);
+	//if (menuVariables::loadedSprites.size() == 0) sprite.setOrigin((int)(sprite.getGlobalBounds().width / 2), (int)(sprite.getGlobalBounds().height / 2 + 45));
+	sprite.setOrigin((int)(sprite.getGlobalBounds().width / 2), (int)(sprite.getGlobalBounds().height / 2 + 45));
+	sprite.setScale(scale);
+	sprite.setPosition(position);
+
+	return sprite;
+}
+
 void WindowController::newCircleShape(int state, sf::Vector2f position, int radius, int corners, sf::Color color, sf::Color outlineColor, int outlineThickness, int rotation) 
 {
 	sf::CircleShape c(radius, corners);
@@ -232,13 +257,13 @@ CircleShape WindowController::newCircleShapeMenu(sf::Vector2f position, int radi
 	return c;
 }
 
-void WindowController::newMenuButton(string text, Color hoverColor)
+void WindowController::newMenuButton(string text, Color hoverColor, string icon, Vector2f iconScale)
 {
 	using namespace menuVariables;
 	menuButton button;
 	sf::Vector2f pos;
-	pos.y = 400 + 200 * (menuButtons.size() % 2);
-	pos.x = 400 + distanceBetweenButtons * floor(menuButtons.size() / 2);
+	pos.y = topRowDistance + deltaTopBot * (menuButtons.size() % 2);
+	pos.x = distanceFromLeft + distanceBetweenButtons * floor(menuButtons.size() / 2);
 
 	button.circleShape = newCircleShapeMenu(pos, menuButtonRadius, menuButtonCorners, Color::Black, menuButtonColor, menuButtonOutlineSize);
 	button.textLable = newTextMenu(Vector2f(pos.x - 4, pos.y + 0.4f * menuButtonRadius), text, "opensans", menuButtonTextSize, Color::White, true);
@@ -252,6 +277,7 @@ void WindowController::newMenuButton(string text, Color hoverColor)
 	button.hoverColor = hoverColor;
 	button.hoverClock.restart();
 	button.animateHover = false;
+	button.icon = newSpriteMenu(pos, icon, iconScale);
 
 	menuButtons.push_back(button);
 }
@@ -275,14 +301,14 @@ void WindowController::menuAnimation(Vector2i mousePos)
 	currentTime = animateIntroClock.getElapsedTime().asMilliseconds();
 	if (currentTime <= 5541) {
 		
-		yDisplacement = (130 - (float)100 * (float)(exp((float)(currentTime - 2400.f) / -1000.f))*(float)sin((float)(currentTime - 2400.f) / 1000.f));
+		yDisplacement = (mainLogoDistance - (float)(100.f * (float)(exp((float)(currentTime - 2400.f) / -1000.f))*(float)sin((float)(currentTime - 2400.f) / 1000.f)));
 		loadedSprites[0].setPosition(Vector2f(750, yDisplacement));
 
 		Color color = loadedSprites[0].getColor();
 		color.a = 255 * currentTime / 5541;
 		loadedSprites[0].setColor(color);
 	} else {
-		yDisplacement = 130 + 20*(float)sin((float)((currentTime + 742.f)/1000.f));
+		yDisplacement = (mainLogoDistance + mainLogoAmplitude * (float)sin((float)((currentTime + 742.f)/1000.f)));
 		loadedSprites[0].setPosition(Vector2f(750, yDisplacement));
 	}
 	if (currentTime >= 1700 && currentTime <= 5541 + 500.f * (menuButtons.size()-1))
@@ -296,16 +322,17 @@ void WindowController::menuAnimation(Vector2i mousePos)
 			} 
 			if (currentTime >= 1700.f + 500.f * i && currentTime <= 5541 + 500 * i) {
 				Vector2f pos = menuButtons[i].circleShape.getPosition();
-				pos.y = 400 + 200 * (i % 2) - (float)50 * (float)(exp((float)(currentTime - 2400.f - 500.f * i) / -1000.f))*(float)sin((float)(currentTime - 2400.f - 500.f * i) / 1000.f);
+				pos.y = (topRowDistance + deltaTopBot * (i % 2) - (float)50 * (float)(exp((float)(currentTime - 2400.f - 500.f * i) / -1000.f))*(float)sin((float)(currentTime - 2400.f - 500.f * i) / 1000.f));
 				menuButtons[i].circleShape.setPosition(pos);
-				menuButtons[i].textLable.setPosition(Vector2f(pos.x - 4, pos.y + 0.4f * menuButtonRadius));
+				menuButtons[i].icon.setPosition(Vector2f(pos.x, ceil(pos.y)));
+				menuButtons[i].textLable.setPosition(Vector2f(pos.x - 4, ceil(pos.y + 0.4f * menuButtonRadius)));
 
 				Color color = menuButtonColor;
 				color.a = menuButtonColor.a * (currentTime - (500.f * i) - 1700.f) / 3841.f;
 				menuButtons[i].circleShape.setOutlineColor(color);
+				menuButtons[i].icon.setColor(Color(255, 255, 255, 255 * (currentTime - (500.f * i) - 1700.f) / 3841.f));
 				menuButtons[i].textLable.setFillColor(Color(255, 255, 255, color.a));
 			}
-			
 		}
 	} else if (currentTime > 5541 + 500.f * (menuButtons.size() - 1)) {
 		int i = 0;
@@ -325,16 +352,18 @@ void WindowController::menuAnimation(Vector2i mousePos)
 			} else if(menu_button.isHovered && menu_button.clickRadius.isHovered(mousePos)) {
 				if(menu_button.animateHover && clockTime < 141) {
 					Vector2f pos = menuButtons[i].circleShape.getPosition();
-					pos.y = 400 + 200 * (i % 2) - 15.f *((float)((float)clockTime / 200.f) / (float)exp((float)pow((float)((float)clockTime / 200.f), 2)));
+					pos.y = (int)(topRowDistance + deltaTopBot * (i % 2) - 15.f *((float)((float)clockTime / 200.f) / (float)exp((float)pow((float)((float)clockTime / 200.f), 2))));
 					menuButtons[i].circleShape.setPosition(pos);
+					menuButtons[i].icon.setPosition(pos);
 					menuButtons[i].textLable.setPosition(Vector2f(pos.x - 4, pos.y + 0.4f * menuButtonRadius));
 					menuButtons[i].clickRadius.centerXY = pos;
 				}
 			} else if(menuButtons[i].animateHover && !(menu_button.clickRadius.isHovered(mousePos))){
 				if (clockTime < 2100) {
 					Vector2f pos = menuButtons[i].circleShape.getPosition();
-					pos.y = 400 + 200 * (i % 2) - 15.f *((float)(((float)clockTime + 141.f) / 200.f) / (float)exp((float)pow((float)(((float)clockTime + 141.f) / 200.f), 2)));
+					pos.y = int(topRowDistance + deltaTopBot * (i % 2) - 15.f *((float)(((float)clockTime + 141.f) / 200.f) / (float)exp((float)pow((float)(((float)clockTime + 141.f) / 200.f), 2))));
 					menuButtons[i].circleShape.setPosition(pos);
+					menuButtons[i].icon.setPosition(pos);
 					menuButtons[i].textLable.setPosition(Vector2f(pos.x - 4, pos.y + 0.4f * menuButtonRadius));
 					menuButtons[i].clickRadius.centerXY = pos;
 				} else {
