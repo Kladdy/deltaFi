@@ -1,9 +1,11 @@
 #include "stdafx.h"
 #include "WindowController.h"
+#include "LanguageController.h"
 
 using namespace sf;
 using namespace std;
 
+LanguageController lang;
 namespace variables
 {
 	enum state
@@ -12,6 +14,9 @@ namespace variables
 		particle = 1,
 	};
 	state currentState = menu;
+
+	string currentLanguage = "en_US";
+	//string currentLanguage = "sv_SE";
 
 	//Fonts
 	map<string, sf::Font> textFonts;
@@ -76,6 +81,12 @@ namespace particleVariables
 
 using namespace variables;
 
+		//General setup
+		lang.selectLanguage(variables::currentLanguage);
+		newMenuButton(lang.selectedLanguage.particle, Color(211, 164, 232, 200), "particleLogo", Vector2f(0.5f, 0.5f));
+		newMenuButton(lang.selectedLanguage.planetary, Color(211, 164, 232, 200), "particleLogo2", Vector2f(0.5f, 0.5f));
+		newMenuButton(lang.selectedLanguage.pendulum, Color(211, 164, 232, 200), "particleLogo3", Vector2f(0.5f, 0.5f));
+		newMenuButton(lang.selectedLanguage.swing, Color(211, 164, 232, 200), "deltaFiLogo", Vector2f(0.3f, 0.3f));
 void WindowController::mouseClicked(sf::Vector2i mousePos, sf::Mouse::Button buttonPressed)
 {
 	cout << "X: " << mousePos.x << " Y: " << mousePos.y << endl;
