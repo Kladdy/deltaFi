@@ -12,6 +12,8 @@
 #include <cmath>
 #include "fonts.hpp"
 #include "textures.hpp"
+#include "musics.hpp"
+#include "sounds.hpp"
 
 class WindowController
 {

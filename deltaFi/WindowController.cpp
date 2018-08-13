@@ -11,6 +11,9 @@ UILib IL;
 namespace variables
 {
 	bool isInitialized = false;
+
+	bool windowHasFocus = false;
+
 	enum state
 	{
 		menu = 0,
@@ -29,6 +32,12 @@ namespace variables
 
 	//Textures
 	static map<string, sf::Texture> loadedTextures;
+
+	//SoundsBuffers
+	static map<string, sf::SoundBuffer> loadedSoundBuffers;
+
+	//Sounds
+	static vector<sf::Sound> sounds;
 }
 
 namespace menuVariables
@@ -120,6 +129,17 @@ void WindowController::initializeAssets(int state)
 		loadedTextures["particleLogo2"] = IL.loadTextureFromMemory((void*)particleLogo2, particleLogo2_Size);
 		loadedTextures["particleLogo3"] = IL.loadTextureFromMemory((void*)particleLogo3, particleLogo3_Size);
 
+		//SoundBuffers
+		loadedSoundBuffers["menuLoop"] = IL.loadSoundBufferFromMemory((void*)menuLoop, menuLoop_Size);
+		loadedSoundBuffers["mouseOver"] = IL.loadSoundBufferFromMemory((void*)mouseOverSFX, mouseOverSFX_Size);
+
+		//Sounds
+		sounds.push_back(sf::Sound(loadedSoundBuffers["menuLoop"]));
+		sounds.push_back(sf::Sound(loadedSoundBuffers["mouseOver"]));
+
+		sounds[0].setLoop(true);
+		sounds[0].play();
+
 		//FPS & UPS counter
 		variables::textLabels.push_back(IL.newText(Vector2f(1427, 695), "FPS: ", &loadedFonts["opensans"], 20, Color::White, false));
 		variables::textLabels.push_back(IL.newText(Vector2f(1490, 720), "UPS: ", &loadedFonts["opensans"], 20, Color::White, false));
@@ -170,6 +190,7 @@ void WindowController::mouseClicked(sf::Vector2i mousePos, sf::Mouse::Button but
 			menuVariables::animateToSimulation = true;
 			menuVariables::simulationClock.restart();
 			menuVariables::selectedSimulation = menu_button.index;
+			return;
 		}
 	}
 
@@ -189,6 +210,8 @@ void WindowController::keyPressed(Keyboard::Key key, bool control, bool alt, boo
 
 void WindowController::updateWindow(sf::RenderWindow& window, Vector2i mousePos, int FPS, int UPS)
 {
+	windowHasFocus = window.hasFocus();
+
 	textLabels[0].setString("FPS: " + to_string(FPS));
 	textLabels[1].setString("UPS: " + to_string(UPS));
 	textLabels[1].setOrigin((int)(textLabels[1].getGlobalBounds().width), 0);
@@ -318,6 +341,7 @@ void WindowController::menuAnimation(Vector2i mousePos)
 				i = menu_button.index;
 				Int32 clockTime = menuButtons[i].hoverClock.getElapsedTime().asMilliseconds();
 				if (!menu_button.isHovered && menu_button.clickRadius.isHovered(mousePos)) {
+					if (windowHasFocus) sounds[1].play();
 					menuButtons[i].circleShape.setOutlineColor(menu_button.hoverColor);
 					menuButtons[i].isHovered = true;
 					menuButtons[i].animateHover = true;
