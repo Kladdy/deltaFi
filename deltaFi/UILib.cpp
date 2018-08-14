@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "UILib.h"
 #include <iostream>
-#include <SFML/Audio.hpp>
 
 using namespace sf;
 using namespace std;
@@ -9,7 +8,7 @@ using namespace std;
 Font UILib::loadFontFromMemory(const void* data, int sizeInBytes) {
 	sf::Font font;
 	if (!font.loadFromMemory(data, sizeInBytes)) {
-		cout << "Failed to load font" << endl;
+		cout << "Failed to load font " << endl;
 	}
 
 	return font;
@@ -23,6 +22,16 @@ Texture UILib::loadTextureFromMemory(const void* data, int sizeInBytes) {
 
 	texture.setSmooth(true);
 	return texture;
+}
+
+SoundBuffer UILib::loadSoundBufferFromMemory(const void* data, int sizeInBytes)
+{
+	sf::SoundBuffer buffer;
+	if (!(buffer.loadFromMemory(data, sizeInBytes))) {
+		cout << "Failed to load sound" << endl;
+	}
+
+	return buffer;
 }
 
 Text UILib::newText(sf::Vector2f position, string text, Font* font, int size, sf::Color color, bool center)

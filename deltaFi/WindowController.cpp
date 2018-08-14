@@ -1,12 +1,14 @@
 #include "stdafx.h"
 #include "WindowController.h"
-#include "LanguageController.h"
+
 
 using namespace sf;
 using namespace std;
 
 LanguageController lang;
 UILib IL;
+
+ParticleController particleController;
 
 namespace variables
 {
@@ -37,7 +39,7 @@ namespace variables
 	static map<string, sf::SoundBuffer> loadedSoundBuffers;
 
 	//Sounds
-	static vector<sf::Sound> sounds;
+	static map<string, sf::Sound> sounds;
 }
 
 namespace menuVariables
@@ -69,8 +71,8 @@ namespace menuVariables
 	//Intro animation
 	bool animateIntro = false;
 	Clock animateIntroClock;
-	Int32 currentTime;
-	float yDisplacement;
+	Int32 currentTime = 0;
+	float yDisplacement = 0.f;
 
 	//Menu layout sizes
 	int mainLogoDistance = 150;
@@ -81,9 +83,9 @@ namespace menuVariables
 
 	//Simulation animation
 	Clock simulationClock;
-	int selectedSimulation;
+	int selectedSimulation = 0;
 	bool animateToSimulation = false;
-	float simulationClockTime;
+	float simulationClockTime = 0;
 	int introFadeDuration = 1000;
 	int alpha = 0;
 
@@ -134,11 +136,11 @@ void WindowController::initializeAssets(int state)
 		loadedSoundBuffers["mouseOver"] = IL.loadSoundBufferFromMemory((void*)mouseOverSFX, mouseOverSFX_Size);
 
 		//Sounds
-		sounds.push_back(sf::Sound(loadedSoundBuffers["menuLoop"]));
-		sounds.push_back(sf::Sound(loadedSoundBuffers["mouseOver"]));
+		sounds["menuLoop"] = sf::Sound(loadedSoundBuffers["menuLoop"]);
+		sounds["mouseOver"] = sf::Sound(loadedSoundBuffers["mouseOver"]);
 
-		sounds[0].setLoop(true);
-		sounds[0].play();
+		sounds["menuLoop"].setLoop(true);
+		sounds["menuLoop"].play();
 
 		//FPS & UPS counter
 		variables::textLabels.push_back(IL.newText(Vector2f(1427, 695), "FPS: ", &loadedFonts["opensans"], 20, Color::White, false));
@@ -168,8 +170,7 @@ void WindowController::initializeAssets(int state)
 	case 1:
 		if (particleVariables::isInitialized) break;
 
-		//Particle
-		particleVariables::circleShapes.push_back(IL.newCircleShape(Vector2f(300, 300), 50, 50, Color::Cyan, Color::Cyan, 5, 0));
+		particleController.initializeAssets();
 
 		particleVariables::isInitialized = true;
 		break;
@@ -244,9 +245,7 @@ void WindowController::updateWindow(sf::RenderWindow& window, Vector2i mousePos,
 		break;
 
 	case particle:
-		for (CircleShape circle_shape : particleVariables::circleShapes) {
-			window.draw(circle_shape);
-		}
+		particleController.updateWindow(window, mousePos);
 		break;
 
 	default:
@@ -341,7 +340,7 @@ void WindowController::menuAnimation(Vector2i mousePos)
 				i = menu_button.index;
 				Int32 clockTime = menuButtons[i].hoverClock.getElapsedTime().asMilliseconds();
 				if (!menu_button.isHovered && menu_button.clickRadius.isHovered(mousePos)) {
-					if (windowHasFocus) sounds[1].play();
+					if (windowHasFocus) sounds["mouseOver"].play();
 					menuButtons[i].circleShape.setOutlineColor(menu_button.hoverColor);
 					menuButtons[i].isHovered = true;
 					menuButtons[i].animateHover = true;

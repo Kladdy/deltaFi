@@ -14,14 +14,16 @@
 #include "textures.hpp"
 #include "musics.hpp"
 #include "sounds.hpp"
+#include "LanguageController.h"
+#include "ParticleController.h"
 
 class WindowController
 {
 public:
+	void initializeAssets(int state);
 	void mouseClicked(sf::Vector2i mousePos, sf::Mouse::Button buttonPressed);
 	void keyPressed(sf::Keyboard::Key key, bool control, bool alt, bool shift, bool system);
 	void updateWindow(sf::RenderWindow& window, sf::Vector2i mousePos, int FPS, int UPS);
-	void initializeAssets(int state);
 
 	void newMenuButton(std::string text, sf::Color hoverColor, std::string icon, sf::Vector2f iconScale);
 
